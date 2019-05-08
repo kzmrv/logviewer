@@ -24,11 +24,12 @@ import (
 const (
 	address         = "localhost:17654"
 	mixerServerPort = 17655
-	timeoutSeconds  = 240
+	timeoutSeconds  = 300
 	bucketName      = "kubernetes-jenkins"
+	batchSize       = 100
 )
 
-func serverMain() {
+func main() {
 	setup()
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", mixerServerPort))
 	if err != nil {
@@ -36,6 +37,7 @@ func serverMain() {
 	}
 	grpcServer := grpc.NewServer()
 	mixerPb.RegisterMixerServiceServer(grpcServer, &mixerServer{})
+	log.Infof("Listening on port %v", mixerServerPort)
 	grpcServer.Serve(lis)
 }
 
@@ -56,9 +58,13 @@ func (*mixerServer) DoWork(request *mixerPb.MixerRequest, server mixerPb.MixerSe
 	wg.Wait()
 	lines := processWorkResults(rpcResponses, works)
 
-	//todo import instead of useless converting
-	//todo actual batching
-	server.Send(&mixerPb.MixerResult{LogLines: lines})
+	batchCount := (len(lines) + 1) / batchSize
+	for i := 0; i < batchCount; i++ {
+		err := server.Send(&mixerPb.MixerResult{LogLines: lines[batchSize*i : batchSize*(i+1)]})
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -84,7 +90,7 @@ func setup() func() {
 	return cl
 }
 
-func main() {
+func localMain() {
 	closeConns := setup()
 	defer closeConns()
 	request := getSampleRequest()
