@@ -24,7 +24,7 @@ import (
 
 var (
 	// Todo support & discovery for multiple workers
-	address         = flag.String("address", "localhost:17654", "Worker address")
+	address         = flag.String("address", "localhost:8001/api/v1/namespaces/default/services/workerservice/proxy/", "Worker address")
 	mixerServerPort = flag.Int("port", 17655, "Mixer server port")
 )
 
@@ -34,7 +34,7 @@ const (
 	batchSize      = 100
 )
 
-func main() {
+func main3() {
 	setup()
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *mixerServerPort))
 	if err != nil {
@@ -97,7 +97,7 @@ func setup() func() {
 	return cl
 }
 
-func localMain() {
+func main() {
 	closeConns := setup()
 	defer closeConns()
 	request := getSampleRequest()
@@ -160,12 +160,12 @@ func initWorkers() ([]*grpc.ClientConn, error) {
 
 func getSampleRequest() *mixerPb.MixerRequest {
 	since, _ := time.Parse(time.RFC3339Nano, "2019-02-15T15:38:48.908485Z")
-	until, _ := time.Parse(time.RFC3339Nano, "2019-02-15T18:38:48.908485Z")
+	until, _ := time.Parse(time.RFC3339Nano, "2019-12-15T18:38:48.908485Z")
 	pSince, _ := ptypes.TimestampProto(since)
 	pUntil, _ := ptypes.TimestampProto(until)
 
 	return &mixerPb.MixerRequest{
-		BuildNumber:     310,
+		BuildNumber:     341,
 		FilePrefix:      "kube-apiserver-audit.log-",
 		TargetSubstring: "9a27",
 		Since:           pSince,

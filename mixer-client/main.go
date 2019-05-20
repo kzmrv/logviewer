@@ -53,12 +53,12 @@ func main() {
 
 func getSampleRequest() *mixerPb.MixerRequest {
 	since, _ := time.Parse(time.RFC3339Nano, "2019-02-15T15:38:48.908485Z")
-	until, _ := time.Parse(time.RFC3339Nano, "2019-02-15T18:38:48.908485Z")
+	until, _ := time.Parse(time.RFC3339Nano, "2019-12-15T18:38:48.908485Z")
 	pSince, _ := ptypes.TimestampProto(since)
 	pUntil, _ := ptypes.TimestampProto(until)
 
 	return &mixerPb.MixerRequest{
-		BuildNumber:     310,
+		BuildNumber:     341,
 		FilePrefix:      "kube-apiserver-audit.log-",
 		TargetSubstring: "9a27",
 		Since:           pSince,
